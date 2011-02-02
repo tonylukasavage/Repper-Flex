@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		actionBarVisible="false" tabBarVisible="false"
+		title="Repper" xmlns:local="*" creationComplete="view1_creationCompleteHandler(event)"
+		height="100%" width="100%">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]public var inputWeight:String;
+			[Bindable]public var inputReps:String;
+			[Bindable]public var repValues1:ArrayCollection = new ArrayCollection();
+			[Bindable]public var repValues2:ArrayCollection = new ArrayCollection();
+			private var percentages:ArrayCollection = new ArrayCollection([
+				1.00, 0.94, 0.91, 0.88333, 0.86, 0.83333, 0.805, 0.77666, 0.7516666, 0.73333
+			]);
+			
+			private function recalculate():void {
+				var weight:Number = Number(inputWeight);
+				var reps:uint = uint(inputReps);
+
+				for (var i:uint = 0; i < 5; i++) {
+					repValues1[i] = {noOfReps:i+1, value:Math.round(weight + ((percentages[i] - percentages[reps-1]) * weight))}; 
+					repValues2[i] = {noOfReps:i+6, value:Math.round(weight + ((percentages[i+5] - percentages[reps-1]) * weight))};
+				}
+				RepperEntry.isCalculated = true;
+			}
+
+			protected function view1_creationCompleteHandler(event:FlexEvent):void
+			{
+				for (var i:uint = 0; i < 10; i++) {
+					if (i < 5) {
+						repValues1.addItem({noOfReps:i+1, value:""});
+					} else {
+						repValues2.addItem({noOfReps:i+1, value:""});
+					}
+				}
+			}
+
+			protected function onRepsKeyUp(event:KeyboardEvent):void
+			{
+				inputReps = (event.currentTarget as TextInput).text;
+			}
+			
+			protected function onWeightKeyUp(event:KeyboardEvent):void
+			{
+				inputWeight = (event.currentTarget as TextInput).text;
+			}
+
+			protected function group1_clickHandler(event:MouseEvent):void
+			{
+				group1.visible = false;
+				group2.visible = false;
+			}
+
+			protected function repList_changeHandler(event:IndexChangeEvent):void
+			{
+				inputReps = (repList.selectedIndex+1).toString();
+				group1.visible = false;
+				group2.visible = false;
+			}
+			
+			private function doStuff(evt:TimerEvent):void {
+				repList.enabled = true;
+				group1.enabled = true;
+				group2.enabled = true;
+				repList.setFocus();
+			}
+			
+			protected function textinput1_focusInHandler(event:FocusEvent):void
+			{
+				repList.setFocus();
+				repList.enabled = false;
+				group1.enabled = false;
+				group2.enabled = false;
+				group1.visible = true;
+				group2.visible = true;
+				var timer:Timer = new Timer(100, 1);
+				timer.addEventListener(TimerEvent.TIMER_COMPLETE, doStuff);
+				timer.start();
+			}
+
+			// to close the list if the same value is selected
+			protected function repList_clickHandler(event:MouseEvent):void
+			{
+				group1.visible = false;
+				group2.visible = false;
+			}
+
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="portrait" />
+		<s:State name="landscape"/>
+	</s:states>
+	
+	<s:VGroup id="portraitGroup" includeIn="portrait" height="100%" width="100%" gap="0" 
+			  paddingTop="{this.height*0.03}" paddingLeft="{this.height*0.03}" paddingRight="{this.height*0.03}">
+		<s:SkinnableContainer id="portraitInput" height="25%" width="100%" skinClass="RepperInputSkin">
+			<s:layout>
+				<s:VerticalLayout paddingTop="{this.height*0.03}" paddingLeft="{this.height*0.03}" 
+								  paddingRight="{this.height*0.03}" paddingBottom="{this.height*0.03}" gap="0"/>
+			</s:layout>
+			<s:HGroup height="100%" width="100%" verticalAlign="middle">
+				
+				<s:VGroup height="100%" width="65%" gap="0">
+					<s:HGroup height="50%" width="100%" verticalAlign="middle" gap="0">
+						<s:Label text="Weight" width="65%" color="0x000000" fontWeight="bold" fontSize="32" id="blah"/>
+						<s:TextInput width="35%" text="{inputWeight}" keyUp="onWeightKeyUp(event)" restrict="0-9." 
+									 contentBackgroundColor="0xffffff" color="0x000000"/>
+					</s:HGroup>
+					<s:HGroup height="50%" width="100%" verticalAlign="middle" gap="0"> 
+						<s:Label text="# of reps" width="65%" color="0x000000" fontWeight="bold" fontSize="32"/>
+						<s:TextInput width="35%" text="{inputReps}" keyUp="onRepsKeyUp(event)" restrict="0-9"
+									 contentBackgroundColor="0xffffff" color="0x000000"
+									  focusIn="textinput1_focusInHandler(event)" />
+					</s:HGroup>
+				</s:VGroup>
+				
+				<s:VGroup id="portraitButton" height="88%" width="35%" horizontalAlign="center" gap="0">
+					<s:Button label="Rep It" click="recalculate();" height="100%" width="90%" chromeColor="#111111" />
+				</s:VGroup>
+				
+			</s:HGroup>
+		</s:SkinnableContainer>
+		<s:HGroup width="100%" height="75%" gap="{this.width*0.04}">
+			<local:VDataGroup width="50%" height="100%" dataProvider="{repValues1}" itemRenderer="RepperEntry"/>
+			<local:VDataGroup width="50%" height="100%" dataProvider="{repValues2}" itemRenderer="RepperEntry"/>
+		</s:HGroup>
+	</s:VGroup>
+	
+	<s:HGroup id="landscapeGroup" includeIn="landscape" height="100%" width="100%"
+			  paddingTop="{this.height*0.03}" paddingBottom="{this.height*0.03}" paddingLeft="{this.height*0.03}"
+			  paddingRight="{this.height*0.03}" gap="{this.height*0.03}" verticalAlign="middle">
+		<s:SkinnableContainer id="landscapeInput" width="36%" skinClass="RepperInputSkin">
+			<s:layout>
+				<s:VerticalLayout paddingTop="{this.height*0.06}" paddingLeft="{this.height*0.06}" 
+								  paddingRight="{this.height*0.06}" paddingBottom="{this.height*0.06}" 
+								  gap="{landscapeInput.height*0.04}" horizontalAlign="right"/>
+			</s:layout>
+			<s:HGroup width="100%" verticalAlign="middle" gap="0">
+				<s:Label text="Weight" width="65%" color="0x000000" fontWeight="bold" fontSize="32"/>
+				<s:TextInput width="35%" text="{inputWeight}" keyUp="onWeightKeyUp(event)" restrict="0-9." 
+							 contentBackgroundColor="0xffffff" color="0x000000"/>
+			</s:HGroup>
+			<s:HGroup width="100%" verticalAlign="middle" gap="0"> 
+				<s:Label text="# of reps" width="65%" color="0x000000" fontWeight="bold" fontSize="32"/>
+				<s:TextInput width="35%" text="{inputReps}" keyUp="onRepsKeyUp(event)" restrict="0-9"
+							 contentBackgroundColor="0xffffff" color="0x000000" focusIn="textinput1_focusInHandler(event)"/>
+			</s:HGroup>
+			<s:Button label="Rep It" click="recalculate();" chromeColor="#111111" />
+		</s:SkinnableContainer>
+		<local:VDataGroup width="32%" height="100%" dataProvider="{repValues1}" itemRenderer="RepperEntry"/>
+		<local:VDataGroup width="32%" height="100%" dataProvider="{repValues2}" itemRenderer="RepperEntry"/>
+	</s:HGroup>
+	
+	<s:Group id="group1" mouseEnabledWhereTransparent="false" height="100%" width="100%" click="group1_clickHandler(event)"
+			 visible="false">
+		<s:Rect height="100%" width="100%" >
+			<s:fill>
+				<s:SolidColor color="0x000000" alpha="0.85"/>
+			</s:fill>
+		</s:Rect>
+	</s:Group>
+	<s:Group id="group2" height="80%" width="200" horizontalCenter="0" verticalCenter="0" visible="false">
+		<s:Rect height="10%" width="100%">
+			<s:fill>
+				<s:LinearGradient rotation="90">
+					<s:GradientEntry color="0x444444"/>
+					<s:GradientEntry color="0x000000"/>
+					<s:GradientEntry color="0x444444"/>
+				</s:LinearGradient>
+			</s:fill>
+		</s:Rect>
+		<s:Group width="100%" height="100%">
+			<s:layout>
+				<s:VerticalLayout gap="0" horizontalAlign="center"/>
+			</s:layout>
+			<s:Label color="0xffffff" text="# of reps" fontSize="32" height="10%" verticalAlign="middle"/>
+			<s:List id="repList" height="90%" width="100%" itemRenderer="RepperList" 
+					change="repList_changeHandler(event)" click="repList_clickHandler(event)">
+				<s:dataProvider>
+					<s:ArrayList>
+						<fx:Number>1</fx:Number>
+						<fx:Number>2</fx:Number>
+						<fx:Number>3</fx:Number>
+						<fx:Number>4</fx:Number>
+						<fx:Number>5</fx:Number>
+						<fx:Number>6</fx:Number>
+						<fx:Number>7</fx:Number>
+						<fx:Number>8</fx:Number>
+						<fx:Number>9</fx:Number>
+						<fx:Number>10</fx:Number>
+					</s:ArrayList>
+				</s:dataProvider>
+			</s:List>
+		</s:Group>
+	</s:Group>
+</s:View>

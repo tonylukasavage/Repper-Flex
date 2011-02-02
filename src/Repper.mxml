@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MobileApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark" firstView="views.RepperHome"
+					 splashScreenImage="@Embed('splash2.png')" splashScreenScaleMode="none"
+					 title="loading..." backgroundColor="#ffffff" creationComplete="mobileapplication1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+
+			protected function mobileapplication1_creationCompleteHandler(event:FlexEvent):void
+			{
+				if(Capabilities.cpuArchitecture=="ARM")
+				{
+					NativeApplication.nativeApplication.addEventListener(Event.ACTIVATE, handleActivate, false, 0, true);
+					NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE, handleDeactivate, false, 0, true);
+					NativeApplication.nativeApplication.addEventListener(KeyboardEvent.KEY_DOWN, handleKeys, false, 0, true);
+				}
+			}
+
+			private function handleActivate(event:Event):void
+			{
+				NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;
+			}
+			
+			private function handleDeactivate(event:Event):void
+			{
+				NativeApplication.nativeApplication.exit();
+			}
+			
+			private function handleKeys(event:KeyboardEvent):void
+			{
+				if(event.keyCode == Keyboard.BACK)
+					NativeApplication.nativeApplication.exit();
+			}
+		]]>
+	</fx:Script>
+</s:MobileApplication>
