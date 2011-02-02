@@ -65,23 +65,31 @@
 				group2.visible = false;
 			}
 			
-			private function doStuff(evt:TimerEvent):void {
+			private function enableList(evt:TimerEvent):void {
 				repList.enabled = true;
 				group1.enabled = true;
 				group2.enabled = true;
+				
+				// sometimes the first unfocus isn't enough to stop the soft keyboard (FUN!)
+				// so here's the second attempt to make sure
 				repList.setFocus();
 			}
 			
 			protected function textinput1_focusInHandler(event:FocusEvent):void
 			{
+				// unfocus text input to prevent soft keyboard from opening
 				repList.setFocus();
+				
+				// disable modal list components to prevent accidental quick touch
 				repList.enabled = false;
 				group1.enabled = false;
 				group2.enabled = false;
 				group1.visible = true;
 				group2.visible = true;
+				
+				// set timer to re-enable modal list components
 				var timer:Timer = new Timer(100, 1);
-				timer.addEventListener(TimerEvent.TIMER_COMPLETE, doStuff);
+				timer.addEventListener(TimerEvent.TIMER_COMPLETE, enableList);
 				timer.start();
 			}
 
