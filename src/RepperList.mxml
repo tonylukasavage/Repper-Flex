@@ -17,7 +17,7 @@
 		<s:Label text="{data}" color="0x000000" fontWeight="bold" height="78" verticalAlign="middle" fontSize="32"/>
 		<s:Rect height="2" width="100%">
 			<s:fill>
-				<s:SolidColor color="0x000000"/>
+				<s:SolidColor color="0x111111"/>
 			</s:fill>
 		</s:Rect>
 	</s:SkinnableContainer>
