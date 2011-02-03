@@ -179,9 +179,9 @@
 		<s:Rect height="10%" width="100%">
 			<s:fill>
 				<s:LinearGradient rotation="90">
-					<s:GradientEntry color="0x444444"/>
+					<s:GradientEntry color="0x555555"/>
 					<s:GradientEntry color="0x000000"/>
-					<s:GradientEntry color="0x444444"/>
+					<s:GradientEntry color="0x555555"/>
 				</s:LinearGradient>
 			</s:fill>
 		</s:Rect>
